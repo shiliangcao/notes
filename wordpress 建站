@@ -1,1 +1,50 @@
-todo
+- 远程ssh登录（在 aws 控制台可以找到 公网 ip 地址） ssh ubuntu@43.202.5.25 
+- 然后安装 docker-compose，sudo apt-get update && sudo apt-get install docker-compose -y
+- 拷贝 docker-compose 文件：https://github.com/docker/awesome-compose/blob/master/wordpress-mysql/compose.yaml，并且重命名为 docker-compose.yml
+- docker-compose up 即可
+
+
+考虑到 EC2 并非 100% 可靠，应该：
+- 将 docker-compose 文件放在持久化目录
+- 将 db （docker-compose 启动的服务之一）配置数据存储在持久化目录
+
+参考这个内容：
+
+services:
+  db:
+    # We use a mariadb image which supports both amd64 & arm64 architecture
+    image: mariadb:10.6.4-focal
+    # If you really want to use MySQL, uncomment the following line
+    #image: mysql:8.0.27
+    command: '--default-authentication-plugin=mysql_native_password'
+    volumes:
+      - /data/database:/var/lib/mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=somewordpress
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=wordpress
+      - MYSQL_PASSWORD=wordpress
+    expose:
+      - 3306
+      - 33060
+  wordpress:
+    image: wordpress:latest
+    volumes:
+      - /data/wordpress:/var/www/html
+    ports:
+      - 10001:80
+    restart: always
+    environment:
+      - WORDPRESS_DB_HOST=db
+      - WORDPRESS_DB_USER=wordpress
+      - WORDPRESS_DB_PASSWORD=wordpress
+      - WORDPRESS_DB_NAME=wordpress
+
+注意：
+- db 和 wordpress 的 volume 部分都换成了 /data 子目录，这个目录是有单独的 EBS 存储，也就是说这个 ebs 还在，ec2 换了也没问题 （需要演练），
+- wordpress 下载的模板会存在/war/www/html 这个目录下，所以需要持久化存储
+
+其他注意：
+- wordpress 启动之后，要把 站点地址和 wordpress 地址改成域名，不然发生重定向的时候，wordpress 返回的重定向是 ec2 实例公网 ip 的 host，我用的是 loadbalancer ，所以肯定不通
+
