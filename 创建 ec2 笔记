@@ -12,3 +12,10 @@
 命令：
 格式化：sudo mkfs -t ext4 /dev/xvdb
 mount：sudo mount /dev/xvdb /data
+
+
+- volume的挂载要在 volume 面板上去操作，在 ec2 的面板上找不到，既不能 launch 的时候挂载，也不能running 之后挂挂载
+- 如果 volume 已经格式化过了，挂载之后就不用格式化了，直接 mount 就行
+
+- stop后 ec2 的 public ip 会被回收（ip 也是一种资源，猜测目的是释放出来回收利用），因此再次启动的时候 public ip 就会变，
+- stop 再 start，ec2 的 private ip 不会变
