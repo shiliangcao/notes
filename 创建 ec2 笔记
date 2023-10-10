@@ -19,3 +19,6 @@ mount：sudo mount /dev/xvdb /data
 
 - stop后 ec2 的 public ip 会被回收（ip 也是一种资源，猜测目的是释放出来回收利用），因此再次启动的时候 public ip 就会变，
 - stop 再 start，ec2 的 private ip 不会变
+
+
+TODO: EBS 扩容后需不需要重新挂在到 ec2 啊？扩到 20G 了 已经，在 ec2 看还是 10G，想办法解决
